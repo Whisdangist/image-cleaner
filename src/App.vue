@@ -1,28 +1,43 @@
 <template>
   <div id="app">
-    <img src="./assets/logo.png">
-    <HelloWorld/>
+    <div class="input-box">
+      <input type="file" id="image-input" @change="upload" accept="image/png,image/gif,image/jpeg">
+    </div>
   </div>
 </template>
 
 <script>
-import HelloWorld from './components/HelloWorld'
-
 export default {
   name: 'App',
-  components: {
-    HelloWorld
+  methods: {
+    upload: function () {
+      let imageInput = document.getElementById('image-input').files
+      if (!imageInput.length) {
+        alert('请选择一个文件！')
+        return
+      }
+      let image = imageInput[0]
+      let formData = new FormData()
+      formData.append('dirty-image', image)
+
+      let xhr = new XMLHttpRequest()
+      xhr.open('POST', '/api/upload')
+      xhr.onload = function () {
+        if (this.status === 200) {
+          alert('上传成功！')
+        } else {
+          alert('上传失败(' + String(this.status) + ')')
+        }
+      }
+      xhr.send(formData)
+    }
   }
 }
 </script>
 
 <style>
 #app {
-  font-family: 'Avenir', Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
   text-align: center;
-  color: #2c3e50;
-  margin-top: 60px;
+  margin-top: 120px;
 }
 </style>
