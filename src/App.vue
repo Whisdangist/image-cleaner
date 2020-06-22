@@ -1,8 +1,8 @@
 <template>
   <div id="app">
     <div class="input-box">
-      <input type="file" id="image-input" @change="upload" accept="image/png,image/gif,image/jpeg">
-      <img id="input-preview">
+      <input type="file" ref="image-input" @change="upload" accept="image/png,image/gif,image/jpeg">
+      <img ref="input-preview">
     </div>
   </div>
 </template>
@@ -12,7 +12,7 @@ export default {
   name: 'App',
   methods: {
     upload: function () {
-      let imageInput = document.getElementById('image-input').files
+      let imageInput = this.$refs['image-input'].files
       if (!imageInput.length) {
         alert('请选择一个文件！')
         return
@@ -37,7 +37,7 @@ export default {
       // 有的浏览器没有FileReader 后期可以加入兼容性代码
       let reader = new FileReader()
       reader.onload = event => {
-        document.getElementById('input-preview').src = event.target.result
+        this.$refs['input-preview'].src = event.target.result
       }
       reader.readAsDataURL(image)
     }
