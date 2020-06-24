@@ -1,6 +1,8 @@
 const express = require('express')
 const formidable = require('formidable')
 const fs = require('fs')
+const path = require('path')
+const sharp = require('sharp')
 
 module.exports = function () {
   let app = express()
@@ -14,12 +16,17 @@ module.exports = function () {
       }
       console.log('parsing done')
       console.log(files['dirty-image'])
-      fs.writeFileSync('backend/tmp/' + files['dirty-image'].name, fs.readFileSync(files['dirty-image'].path))
-      resolve()
+      let uploadDir = path.resolve(__dirname, 'tmp/upload/')
+      if (!fs.existsSync(uploadDir)) {
+        fs.mkdirSync(uploadDir)
+      }
+      let filename = path.resolve(uploadDir, files['dirty-image'].name)
+      fs.writeFileSync(filename, fs.readFileSync(files['dirty-image'].path))
+      resolve(filename)
     }))
-      .then(() => {
-        res.write('hi')
-        res.end()
+      .then(rawImage => process(rawImage))
+      .then(processedImage => {
+        res.sendFile(processedImage)
       })
       .catch(e => {
         console.log('Error occured!')
@@ -33,4 +40,18 @@ module.exports = function () {
 
     console.log('Backend listening at http://%s:%s', host, port)
   })
+}
+
+async function process (rawImage) {
+  let outputImage = path.resolve(__dirname, 'tmp/output.jpg')
+  await new Promise(resolve => sharp(rawImage)
+    .grayscale()
+    .toFile(outputImage, function (err) {
+      if (err) {
+        console.log('error processing image')
+        console.log(err)
+      }
+      resolve()
+    }))
+  return outputImage
 }

@@ -3,6 +3,7 @@
     <div class="input-box">
       <input type="file" ref="image-input" @change="upload" accept="image/png,image/gif,image/jpeg">
       <img ref="input-preview">
+      <img ref="image-output">
     </div>
   </div>
 </template>
@@ -24,9 +25,11 @@ export default {
 
       let xhr = new XMLHttpRequest()
       xhr.open('POST', '/api/upload')
-      xhr.onload = function () {
-        if (this.status === 200) {
+      xhr.responseType = 'blob'
+      xhr.onload = () => {
+        if (xhr.status === 200) {
           alert('上传成功！')
+          this.$refs['image-output'].src = window.URL.createObjectURL(xhr.response)
         } else {
           alert('上传失败(' + String(this.status) + ')')
         }
